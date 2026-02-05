@@ -1,0 +1,29 @@
+name: Money Printer
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Runs every 15 minutes
+  workflow_dispatch:      # Allows you to click a "Run Now" button to test it
+
+jobs:
+  scrape-and-alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Arbitrage Scanner
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BETTINGPROS_API_KEY: ${{ secrets.BETTINGPROS_API_KEY }}
+        run: python main.py
