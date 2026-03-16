@@ -2,8 +2,11 @@ name: Money Printer
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
-  workflow_dispatch:          # Manual trigger button in GitHub UI
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   scrape-and-alert:
@@ -11,9 +14,9 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history needed for clean rebasing
+          fetch-depth: 0
 
       - name: Pull latest history before running
         run: |
@@ -22,7 +25,7 @@ jobs:
           git pull --rebase origin main
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
