@@ -38,6 +38,7 @@ jobs:
       - name: Commit and Push History
         run: |
           git pull --rebase origin main
+          touch arb_history.json
           git add arb_history.json
           git diff-index --quiet HEAD || git commit -m "Update arb history [skip ci]"
           git push
