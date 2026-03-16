@@ -2,8 +2,8 @@ name: Money Printer
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Runs every 15 minutes
-  workflow_dispatch:      # Allows you to click a "Run Now" button to test it
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:          # Manual trigger button in GitHub UI
 
 jobs:
   scrape-and-alert:
@@ -12,6 +12,14 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full history needed for clean rebasing
+
+      - name: Pull latest history before running
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git pull --rebase origin main
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -19,20 +27,17 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run Arbitrage Scanner
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           BETTINGPROS_API_KEY: ${{ secrets.BETTINGPROS_API_KEY }}
         run: python main.py
-        
-        
+
       - name: Commit and Push History
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git pull --rebase origin main
           git add arb_history.json
           git diff-index --quiet HEAD || git commit -m "Update arb history [skip ci]"
           git push
