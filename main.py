@@ -65,8 +65,9 @@ def send_discord_alert(arb):
         print(f"   ⚠️ Failed to send alert: {e}")
 
 def get_event_ids():
-    """Fetch active NBA event IDs from the offers endpoint itself."""
-    url = "https://api.bettingpros.com/v3/offers?sport=NBA&market_id=129&limit=10&page=1"
+    """Fetch today's NBA event IDs from the events endpoint."""
+    today = datetime.now().strftime('%Y-%m-%d')
+    url = f"https://api.bettingpros.com/v3/events?sport=NBA&date={today}"
     headers = {
         'Referer': 'https://www.bettingpros.com/',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -76,17 +77,17 @@ def get_event_ids():
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        offers = response.json().get('offers', [])
-        # Pull unique event IDs directly from the offers themselves
-        ids = list({str(o['event_id']) for o in offers if 'event_id' in o})
+        events = response.json().get('events', [])
+        ids = [str(e['id']) for e in events if 'id' in e]
         if not ids:
-            print("⚠️ No event IDs found in offers response.")
+            print("⚠️ No events found for today.")
             return None
         print(f"📅 Found {len(ids)} events: {':'.join(ids)}")
         return ':'.join(ids)
     except Exception as e:
         print(f"❌ Failed to fetch event IDs: {e}")
         return None
+        
 def get_data(event_ids):
     base_url = "https://api.bettingpros.com/v3/offers"
 
