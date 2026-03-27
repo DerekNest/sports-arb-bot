@@ -136,6 +136,7 @@ def get_data(event_ids):
                             for line in book.get('lines', []):
                                 all_rows.append({
                                     "Player": player_name,
+                                    "Market": market,
                                     "Book": book_name,
                                     "Type": label,
                                     "Line": line.get('line'),
@@ -173,7 +174,7 @@ def find_arbs(df):
 
     df['Decimal'] = df['Odds'].apply(get_decimal)
     arbs = []
-    grouped = df.groupby(['Player', 'Line'])
+    grouped = df.groupby(['Player', 'Market', 'Line'])
 
     for (player, line), group in grouped:
         overs = group[group['Type'] == 'Over']
