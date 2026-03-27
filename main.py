@@ -42,8 +42,8 @@ BOOK_MAP = {
 }
 MARKET_MAP = {
     156: "Points",
-    151: "Rebounds",
-    157: "Assists"
+    151: "Assists",
+    157: "Rebounds"
 }
 def send_discord_alert(arb):
     if not DISCORD_WEBHOOK_URL:
