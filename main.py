@@ -191,6 +191,7 @@ if __name__ == "__main__":
     if not API_KEY:
         print("❌ CRITICAL: No API Key found in environment variables!")
     else:
+        print(f"🔑 API Key loaded (ends in ...{API_KEY[-4:]})")
         event_ids = get_event_ids()
 
         if not event_ids:
