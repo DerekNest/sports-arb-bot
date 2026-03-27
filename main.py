@@ -93,61 +93,73 @@ def get_data(event_ids):
 
     headers = {
         'sec-ch-ua-platform': '"Linux"',
-        'Referer': 'https://www.bettingpros.com/',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
+        'referer': 'https://www.bettingpros.com/',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'accept': 'application/json, text/plain, */*',
         'x-api-key': API_KEY,
     }
 
     all_rows = []
-    current_page = 1
+    
+    # replace these integers with the specific market ids you wish to scan
+    # 129 represents the team spread market
+    target_markets = [129, 41, 42, 43]
 
-    while current_page <= 10:
-        url = f"{base_url}?sport=NBA&market_id=129&event_id={event_ids}&book_id=null&limit=10&page={current_page}"
-        try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            offers = response.json().get('offers', [])
-            if not offers:
-                print(f"   No more offers at page {current_page}. Stopping.")
+    for market in target_markets:
+        current_page = 1
+        while current_page <= 10:
+            url = f"{base_url}?sport=NBA&market_id={market}&event_id={event_ids}&book_id=null&limit=10&page={current_page}"
+            try:
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+                offers = response.json().get('offers', [])
+                
+                if not offers:
+                    print(f"   no more offers at page {current_page} for market {market}. stopping.")
+                    break
+
+                for offer in offers:
+                    participants = offer.get('participants', [])
+                    if not participants:
+                        continue
+                        
+                    player_name = participants[0].get('name')
+
+                    for selection in offer.get('selections', []):
+                        label = selection.get('label')
+                        for book in selection.get('books', []):
+                            book_id = book.get('id')
+                            if book_id in [0, 73]:
+                                continue
+
+                            book_name = BOOK_MAP.get(book_id, f"Book_{book_id}")
+                            for line in book.get('lines', []):
+                                all_rows.append({
+                                    "Player": player_name,
+                                    "Book": book_name,
+                                    "Type": label,
+                                    "Line": line.get('line'),
+                                    "Odds": line.get('cost')
+                                })
+                                
+            except requests.exceptions.HTTPError as e:
+                print(f"   x http error on page {current_page} for market {market}: {e}")
+                break
+            except requests.exceptions.Timeout:
+                print(f"   x timeout on page {current_page} for market {market}. stopping.")
+                break
+            except Exception as e:
+                print(f"   x unexpected error on page {current_page} for market {market}: {e}")
                 break
 
-            for offer in offers:
-                participants = offer.get('participants', [])
-                if not participants:
-                    continue
-                player_name = participants[0].get('name')
-
-                for selection in offer.get('selections', []):
-                    label = selection.get('label')
-                    for book in selection.get('books', []):
-                        book_id = book.get('id')
-                        if book_id in [0, 73]:
-                            continue  # Filter known glitchy books
-
-                        book_name = BOOK_MAP.get(book_id, f"Book_{book_id}")
-                        for line in book.get('lines', []):
-                            all_rows.append({
-                                "Player": player_name,
-                                "Book": book_name,
-                                "Type": label,
-                                "Line": line.get('line'),
-                                "Odds": line.get('cost')
-                            })
             current_page += 1
+            
+            # pause execution briefly to prevent rate limiting when cycling through multiple markets
+            time.sleep(0.5)
 
-        except requests.exceptions.HTTPError as e:
-            print(f"   ❌ HTTP error on page {current_page}: {e}")
-            break
-        except requests.exceptions.Timeout:
-            print(f"   ❌ Timeout on page {current_page}. Stopping.")
-            break
-        except Exception as e:
-            print(f"   ❌ Unexpected error on page {current_page}: {e}")
-            break
-
-    print(f"   📦 Collected {len(all_rows)} rows total.")
+    print(f"   collected {len(all_rows)} rows total.")
     return pd.DataFrame(all_rows)
+    
 
 def find_arbs(df):
     if df.empty:
