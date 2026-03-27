@@ -43,6 +43,7 @@ jobs:
           git add arb_history.json
           git stash
           git pull --rebase origin main
+          git stash list | grep -q stash && git stash pop || echo "Nothing to pop"
           git stash pop
           git add arb_history.json
           git diff-index --quiet HEAD || git commit -m "Update arb history [skip ci]"
