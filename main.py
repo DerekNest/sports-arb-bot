@@ -52,6 +52,7 @@ def send_discord_alert(arb):
         "fields": [
             {"name": "Line", "value": str(arb['Line']), "inline": True},
             {"name": "Profit", "value": f"{arb['ROI']:.2f}% Risk-Free", "inline": True},
+            {"name": "Market", "value": MARKET_MAP.get(arb['Market'], str(arb['Market'])), "inline": True},
             {"name": "BET OVER", "value": arb['Bet_Over'], "inline": False},
             {"name": "BET UNDER", "value": arb['Bet_Under'], "inline": False}
         ],
@@ -192,6 +193,7 @@ def find_arbs(df):
             if MIN_ROI < roi < MAX_ROI:
                 arbs.append({
                     "Player": player,
+                    "Market": market,
                     "Line": line,
                     "Bet_Over": f"{best_over['Book']} ({best_over['Odds']})",
                     "Bet_Under": f"{best_under['Book']} ({best_under['Odds']})",
