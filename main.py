@@ -66,7 +66,7 @@ def send_discord_alert(arb):
 
 def get_event_ids():
     """Fetch active NBA event IDs from the offers endpoint itself."""
-    url = "https://api.bettingpros.com/v3/offers?sport=NBA&market_id=156&limit=10&page=1"
+    url = "https://api.bettingpros.com/v3/offers?sport=NBA&market_id=129&limit=10&page=1"
     headers = {
         'Referer': 'https://www.bettingpros.com/',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -102,7 +102,7 @@ def get_data(event_ids):
     current_page = 1
 
     while current_page <= 10:
-        url = f"{base_url}?sport=NBA&market_id=156&event_id={event_ids}&book_id=null&limit=10&page={current_page}"
+        url = f"{base_url}?sport=NBA&market_id=129&event_id={event_ids}&book_id=null&limit=10&page={current_page}"
         try:
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
