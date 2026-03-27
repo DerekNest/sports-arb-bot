@@ -103,7 +103,7 @@ def get_data(event_ids):
     
     # replace these integers with the specific market ids you wish to scan
     # 129 represents the team spread market
-    target_markets = [129, 41, 42, 43]
+    target_markets = [156, 151, 157]
 
     for market in target_markets:
         current_page = 1
