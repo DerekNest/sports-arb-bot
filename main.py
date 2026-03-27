@@ -40,7 +40,11 @@ BOOK_MAP = {
     15: "BetRivers", 33: "ESPN Bet", 36: "Fliff", 37: "Pinnacle",
     49: "HardRock", 60: "Novig", 68: "Sporttrade", 73: "Polymarket"
 }
-
+MARKET_MAP = {
+    156: "Points",
+    151: "Rebounds",
+    157: "Assists"
+}
 def send_discord_alert(arb):
     if not DISCORD_WEBHOOK_URL:
         print("❌ No Discord URL found. Skipping alert.")
