@@ -177,7 +177,7 @@ def find_arbs(df):
     arbs = []
     grouped = df.groupby(['Player', 'Market', 'Line'])
 
-    for (player, line), group in grouped:
+    for (player, market, line), group in grouped:
         overs = group[group['Type'] == 'Over']
         unders = group[group['Type'] == 'Under']
         if overs.empty or unders.empty:
